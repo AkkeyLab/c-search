@@ -1,0 +1,11 @@
+# https://github.com/Kotlin/kmm-basic-sample/blob/master/.gitignore
+*.iml
+.gradle
+.idea
+.DS_Store
+build
+captures
+.externalNativeBuild
+.cxx
+local.properties
+xcuserdata
