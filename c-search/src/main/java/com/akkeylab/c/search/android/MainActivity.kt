@@ -17,6 +17,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akkeylab.c.search.Greeting
+import com.akkeylab.c.search.SearchCorporate
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancel
 
 @Composable
 fun MyApplicationTheme(
@@ -58,8 +62,21 @@ fun MyApplicationTheme(
 }
 
 class MainActivity : ComponentActivity() {
+    private val mainScope = MainScope()
+    private val searchCorporate = SearchCorporate()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mainScope.launch {
+            runCatching {
+                searchCorporate.search()
+            }.onSuccess {
+                println("Success")
+            }.onFailure {
+                println("Failure")
+            }
+        }
+
         setContent {
             MyApplicationTheme {
                 Surface(
@@ -70,6 +87,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mainScope.cancel()
     }
 }
 
