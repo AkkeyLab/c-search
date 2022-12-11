@@ -68,6 +68,7 @@ kotlin {
 android {
     namespace = "com.akkeylab.c.search"
     compileSdk = 33
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 33
         targetSdk = 33
