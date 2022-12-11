@@ -1,6 +1,9 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("com.codingfeline.buildkonfig").version("+")
 }
 
 kotlin {
@@ -67,5 +70,13 @@ android {
     defaultConfig {
         minSdk = 33
         targetSdk = 33
+    }
+}
+
+buildkonfig {
+    packageName = "com.akkeylab.c.search"
+
+    defaultConfigs {
+        buildConfigField(STRING, "API_KEY", "${System.getenv("API_KEY")}")
     }
 }

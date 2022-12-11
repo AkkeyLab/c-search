@@ -17,7 +17,8 @@ class SearchCorporate {
                 }
             }
         }
-        val response: HttpResponse = client.get("https://api.houjin-bangou.nta.go.jp/4/num?id={}&number={}&type=12&history=0")
+        val apiKey = BuildKonfig.API_KEY
+        val response: HttpResponse = client.get("https://api.houjin-bangou.nta.go.jp/4/num?id=${apiKey}&number={}&type=12&history=0")
         println(response.status)
         client.close()
     }
