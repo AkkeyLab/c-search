@@ -24,7 +24,7 @@ class SearchCorporate {
             "https://api.houjin-bangou.nta.go.jp/4/name?id=${apiKey}&name=${name}&type=12&mode=2&kind=03&close=0"
         )
         println(response.status)
-        println(response.body<Any?>().toString())
+        println(response.bodyAsText())
         client.close()
     }
 }
