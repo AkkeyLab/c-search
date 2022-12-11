@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         CoroutineScope(Dispatchers.IO + job).launch(Dispatchers.IO) {
             runCatching {
-                searchCorporate.search("%EF%BC%A1%EF%BD%8B%EF%BD%8B%EF%BD%85%EF%BD%99%EF%BC%AC%EF%BD%81%EF%BD%82")
+                searchCorporate.search("ＡｋｋｅｙＬａｂ")
             }.onSuccess {
                 println("Success")
             }.onFailure {

@@ -20,9 +20,14 @@ class SearchCorporate {
         }
         val apiKey = BuildKonfig.API_KEY
         // https://www.houjin-bangou.nta.go.jp/documents/k-web-api-kinou-gaiyo.pdf#page=24
-        val response: HttpResponse = client.get(
-            "https://api.houjin-bangou.nta.go.jp/4/name?id=${apiKey}&name=${name}&type=12&mode=2&kind=03&close=0"
-        )
+        val response: HttpResponse = client.get("https://api.houjin-bangou.nta.go.jp/4/name") {
+            parameter("id", apiKey)
+            parameter("name", name)
+            parameter("type", 12)
+            parameter("mode", 2)
+            parameter("kind", "03")
+            parameter("close", 0)
+        }
         println(response.status)
         println(response.bodyAsText())
         client.close()
