@@ -79,4 +79,14 @@ buildkonfig {
     defaultConfigs {
         buildConfigField(STRING, "API_KEY", "${System.getenv("API_KEY")}")
     }
+
+    targetConfigs {
+        create("android") {
+            buildConfigField(STRING, "API_KEY", "${System.getenv("API_KEY")}")
+        }
+
+        create("ios") {
+            buildConfigField(STRING, "API_KEY", "${System.getenv("API_KEY")}")
+        }
+    }
 }
