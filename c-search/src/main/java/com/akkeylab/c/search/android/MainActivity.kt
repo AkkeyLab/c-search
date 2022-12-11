@@ -18,9 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akkeylab.c.search.Greeting
 import com.akkeylab.c.search.SearchCorporate
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 
 @Composable
 fun MyApplicationTheme(
@@ -62,14 +60,14 @@ fun MyApplicationTheme(
 }
 
 class MainActivity : ComponentActivity() {
-    private val mainScope = MainScope()
+    private val job = Job()
     private val searchCorporate = SearchCorporate()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mainScope.launch {
+        CoroutineScope(Dispatchers.IO + job).launch(Dispatchers.IO) {
             runCatching {
-                searchCorporate.search()
+                searchCorporate.search("%EF%BC%A1%EF%BD%8B%EF%BD%8B%EF%BD%85%EF%BD%99%EF%BC%AC%EF%BD%81%EF%BD%82")
             }.onSuccess {
                 println("Success")
             }.onFailure {
@@ -91,7 +89,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mainScope.cancel()
+        job.cancel()
     }
 }
 
