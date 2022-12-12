@@ -2,12 +2,14 @@ package com.akkeylab.c.search
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.serialization.kotlinx.xml.*
 
 class SearchCorporate {
-    suspend fun search(name: String) {
+    suspend fun search(name: String): String {
         val client = HttpClient() {
             install(Logging) {
                 level = LogLevel.HEADERS
@@ -16,6 +18,9 @@ class SearchCorporate {
                         println(message)
                     }
                 }
+            }
+            install(ContentNegotiation) {
+                xml()
             }
         }
         val apiKey = BuildKonfig.API_KEY
@@ -28,8 +33,7 @@ class SearchCorporate {
             parameter("kind", "03")
             parameter("close", 0)
         }
-        println(response.status)
-        println(response.bodyAsText())
         client.close()
+        return response.bodyAsText()
     }
 }

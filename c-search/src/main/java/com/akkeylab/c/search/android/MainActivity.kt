@@ -62,16 +62,28 @@ fun MyApplicationTheme(
 class MainActivity : ComponentActivity() {
     private val job = Job()
     private val searchCorporate = SearchCorporate()
+    private var corporate = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CoroutineScope(Dispatchers.IO + job).launch(Dispatchers.IO) {
             runCatching {
-                searchCorporate.search("ＡｋｋｅｙＬａｂ")
+                corporate = searchCorporate.search("ＡｋｋｅｙＬａｂ")
             }.onSuccess {
-                println("Success")
+                setContent {
+                    MyApplicationTheme {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = MaterialTheme.colors.background
+                        ) {
+                            Greeting(corporate)
+                        }
+                    }
+                }
             }.onFailure {
-                println("Failure")
+                setContent {
+                    Greeting("Network Error")
+                }
             }
         }
 
@@ -81,7 +93,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting(Greeting().greeting())
+                    Greeting("Now Loading")
                 }
             }
         }
