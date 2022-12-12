@@ -6,6 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 
 class SearchCorporate {
+    @Throws(Throwable::class)
     suspend fun search(name: String): String {
         val client = HttpClient() {
             install(Logging) {

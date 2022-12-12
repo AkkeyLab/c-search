@@ -91,3 +91,10 @@ buildkonfig {
         }
     }
 }
+
+// https://github.com/Kotlin/kotlinx.coroutines/issues/3247#issuecomment-1322559554
+kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget::class.java) {
+    binaries.all {
+        binaryOptions["memoryModel"] = "experimental"
+    }
+}
