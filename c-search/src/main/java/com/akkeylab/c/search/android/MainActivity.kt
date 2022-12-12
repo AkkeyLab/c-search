@@ -17,6 +17,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akkeylab.c.search.Greeting
+import com.akkeylab.c.search.SearchCorporate
+import kotlinx.coroutines.*
 
 @Composable
 fun MyApplicationTheme(
@@ -58,18 +60,48 @@ fun MyApplicationTheme(
 }
 
 class MainActivity : ComponentActivity() {
+    private val job = Job()
+    private val searchCorporate = SearchCorporate()
+    private var corporate = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CoroutineScope(Dispatchers.IO + job).launch(Dispatchers.IO) {
+            runCatching {
+                corporate = searchCorporate.search("ＡｋｋｅｙＬａｂ")
+            }.onSuccess {
+                setContent {
+                    MyApplicationTheme {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = MaterialTheme.colors.background
+                        ) {
+                            Greeting(corporate)
+                        }
+                    }
+                }
+            }.onFailure {
+                setContent {
+                    Greeting("Network Error")
+                }
+            }
+        }
+
         setContent {
             MyApplicationTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting(Greeting().greeting())
+                    Greeting("Now Loading")
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
 }
 
