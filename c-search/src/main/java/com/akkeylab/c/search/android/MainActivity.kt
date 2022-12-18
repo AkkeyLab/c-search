@@ -4,16 +4,26 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalOf
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akkeylab.c.search.Greeting
@@ -21,7 +31,7 @@ import com.akkeylab.c.search.SearchCorporate
 import kotlinx.coroutines.*
 
 @Composable
-fun MyApplicationTheme(
+fun ApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
@@ -60,40 +70,66 @@ fun MyApplicationTheme(
 }
 
 class MainActivity : ComponentActivity() {
-    private val job = Job()
+    private val scope = MainScope()
     private val searchCorporate = SearchCorporate()
-    private var corporate = ""
+    private val stringConverter = StringConverter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        CoroutineScope(Dispatchers.IO + job).launch(Dispatchers.IO) {
-            runCatching {
-                corporate = searchCorporate.search("ＡｋｋｅｙＬａｂ")
-            }.onSuccess {
-                setContent {
-                    MyApplicationTheme {
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colors.background
-                        ) {
-                            Greeting(corporate)
-                        }
-                    }
-                }
-            }.onFailure {
-                setContent {
-                    Greeting("Network Error")
-                }
-            }
-        }
 
         setContent {
-            MyApplicationTheme {
+            var responseText by remember {
+                mutableStateOf("No search result")
+            }
+
+            var searchText by remember {
+                mutableStateOf("")
+            }
+
+            ApplicationTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Now Loading")
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        ResponseViewer(
+                            text = responseText,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.Center)
+                        )
+
+                        Row(
+                            modifier = Modifier.align(Alignment.BottomCenter),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            SearchField(
+                                text = searchText,
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                            ) {
+                                searchText = stringConverter.toFullWidth(it)
+                            }
+                            SearchButton(
+                                modifier = Modifier
+                                    .width(100.dp)
+                                    .padding(8.dp)
+                            ) {
+                                if (searchText.isEmpty()) {
+                                    return@SearchButton
+                                }
+                                responseText = "Now Loading"
+                                scope.launch {
+                                    kotlin.runCatching {
+                                        responseText = searchCorporate.search(searchText)
+                                    }.onFailure {
+                                        responseText = "Network Error"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -101,19 +137,75 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        job.cancel()
+        scope.cancel()
     }
 }
 
 @Composable
-fun Greeting(text: String) {
-    Text(text = text)
+fun ResponseViewer(text: String, modifier: Modifier = Modifier) {
+    Text(
+        modifier = modifier,
+        text = text,
+        textAlign = TextAlign.Center
+    )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun SearchButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    Button(
+        modifier = modifier,
+        onClick = {
+            onClick()
+            keyboardController?.hide()
+        }
+    ) {
+        Text("Search")
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun SearchField(text: String, modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    OutlinedTextField(
+        value = text,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        label = { Text("Corporate Name") },
+        placeholder = { Text("Enter corporate name") },
+        keyboardActions = KeyboardActions(
+            onDone = {
+                keyboardController?.hide()
+            }
+        ),
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Done
+        )
+    )
 }
 
 @Preview
 @Composable
-fun DefaultPreview() {
-    MyApplicationTheme {
-        Greeting("Hello, Android!")
+fun ResponseViewerPreview() {
+    ApplicationTheme {
+        ResponseViewer(text = "Now Loading")
+    }
+}
+
+@Preview
+@Composable
+fun SearchButtonPreview() {
+    ApplicationTheme {
+        SearchButton {}
+    }
+}
+
+@Preview
+@Composable
+fun SearchFieldPreview() {
+    ApplicationTheme {
+        SearchField("input") {}
     }
 }
