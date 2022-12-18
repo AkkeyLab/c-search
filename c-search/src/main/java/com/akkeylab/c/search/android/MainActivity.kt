@@ -173,6 +173,8 @@ fun SearchField(text: String, modifier: Modifier = Modifier, onValueChange: (Str
         value = text,
         onValueChange = onValueChange,
         modifier = modifier,
+        label = { Text("Corporate Name") },
+        placeholder = { Text("Enter corporate name") },
         keyboardActions = KeyboardActions(
             onDone = {
                 keyboardController?.hide()
