@@ -74,7 +74,6 @@ class MainActivity : ComponentActivity() {
     private val searchCorporate = SearchCorporate()
     private val stringConverter = StringConverter()
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
