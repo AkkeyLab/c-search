@@ -151,11 +151,16 @@ fun ResponseViewer(text: String, modifier: Modifier = Modifier) {
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     Button(
         modifier = modifier,
-        onClick = onClick
+        onClick = {
+            onClick()
+            keyboardController?.hide()
+        }
     ) {
         Text("Search")
     }
