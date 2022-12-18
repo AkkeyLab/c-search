@@ -4,9 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -20,6 +18,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akkeylab.c.search.Greeting
@@ -68,13 +67,18 @@ fun ApplicationTheme(
 class MainActivity : ComponentActivity() {
     private val scope = MainScope()
     private val searchCorporate = SearchCorporate()
+    private val stringConverter = StringConverter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             var responseText by remember {
-                mutableStateOf("Now Loading")
+                mutableStateOf("No search result")
+            }
+
+            var searchText by remember {
+                mutableStateOf("")
             }
 
             ApplicationTheme {
@@ -89,16 +93,31 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .align(Alignment.Center)
                         )
-                        SearchButton(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter)
+
+                        Row(
+                            modifier = Modifier.align(Alignment.BottomCenter),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
                         ) {
-                            scope.launch {
-                                kotlin.runCatching {
-                                    responseText = searchCorporate.search("ＡｋｋｅｙＬａｂ")
-                                }.onFailure {
-                                    responseText = "Network Error"
+                            SearchField(
+                                text = searchText,
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                            ) {
+                                searchText = stringConverter.toFullWidth(it)
+                            }
+                            SearchButton(
+                                modifier = Modifier
+                                    .width(100.dp)
+                                    .padding(8.dp)
+                            ) {
+                                responseText = "Now Loading"
+                                scope.launch {
+                                    kotlin.runCatching {
+                                        responseText = searchCorporate.search(searchText)
+                                    }.onFailure {
+                                        responseText = "Network Error"
+                                    }
                                 }
                             }
                         }
@@ -133,6 +152,15 @@ fun SearchButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     }
 }
 
+@Composable
+fun SearchField(text: String, modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = text,
+        onValueChange = onValueChange,
+        modifier = modifier
+    )
+}
+
 @Preview
 @Composable
 fun ResponseViewerPreview() {
@@ -146,5 +174,13 @@ fun ResponseViewerPreview() {
 fun SearchButtonPreview() {
     ApplicationTheme {
         SearchButton {}
+    }
+}
+
+@Preview
+@Composable
+fun SearchFieldPreview() {
+    ApplicationTheme {
+        SearchField("input") {}
     }
 }
