@@ -117,6 +117,9 @@ class MainActivity : ComponentActivity() {
                                     .width(100.dp)
                                     .padding(8.dp)
                             ) {
+                                if (searchText.isEmpty()) {
+                                    return@SearchButton
+                                }
                                 responseText = "Now Loading"
                                 scope.launch {
                                     kotlin.runCatching {
